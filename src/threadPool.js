@@ -52,6 +52,7 @@ class Thread {
     constructor({ worker }) {
         // nodejs的Worker对象，nodejs的worker_threads模块的Worker
         this.worker = worker;
+        this.threadId = worker.threadId;
         // 线程状态
         this.state = THREAD_STATE.IDLE;
         // 上次工作的时间
@@ -126,8 +127,8 @@ class ThreadPool {
         const threadId = worker.threadId;
         worker.on('exit', () => {
             // 找到该线程对应的数据结构，然后删除该线程的数据结构
-            const position = this.workerQueue.findIndex(({worker}) => {
-                return worker.threadId === threadId;
+            const position = this.workerQueue.findIndex((thread) => {
+                return thread.threadId === threadId;
             });
             const exitedThread = this.workerQueue.splice(position, 1);
             // 退出时状态是BUSY说明还在处理任务（非正常退出）
