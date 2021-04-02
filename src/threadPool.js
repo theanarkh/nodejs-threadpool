@@ -102,7 +102,7 @@ class ThreadPool {
     }
     // 支持空闲退出
     pollIdle() {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             for (let i = 0; i < this.workerQueue.length; i++) {
                 const node = this.workerQueue[i];
                 if (node.state === THREAD_STATE.IDLE && Date.now() - node.lastWorkTime > this.maxIdleTime) {
@@ -111,6 +111,7 @@ class ThreadPool {
             }
             this.pollIdle();
         }, 1000);
+        timer.unref();
     }
     // 预创建线程池，数量等于核心线程数
     preCreateThreads() {
