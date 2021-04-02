@@ -7,7 +7,7 @@ const { Work } = require('./work');
 const { DISCARD_POLICY, THREAD_STATE, WORK_STATE } = require('./constants');
 const config = require('./config');
 const cores = os.cpus().length;
-const  { isFunction, isJSFile } = require('./utils');
+const  { isFunction, isJSFile, isMJSFile } = require('./utils');
 const workerPath = path.resolve(__dirname, 'worker.js');
 
 // 提供给用户侧的接口
@@ -229,6 +229,9 @@ class ThreadPool {
                                         let aFunction;
                                         if (isJSFile(filename)) {
                                             aFunction = require(filename);
+                                        } else if (isMJSFile(filename)) {
+                                            const { default: entry } = await import(filename);
+                                            aFunction = entry;
                                         } else {
                                             aFunction = vm.runInThisContext(`(${filename})`);
                                         }

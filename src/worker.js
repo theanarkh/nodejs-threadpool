@@ -1,6 +1,6 @@
 const { parentPort } = require('worker_threads');
 const vm = require('vm');
-const { isFunction, isJSFile } = require('./utils');
+const { isFunction, isJSFile, isMJSFile } = require('./utils');
 
 // 监听主线程提交过来的任务
 parentPort.on('message', async (work) => {
@@ -9,6 +9,9 @@ parentPort.on('message', async (work) => {
         let aFunction;
         if (isJSFile(filename)) {
             aFunction = require(filename);
+        } else if (isMJSFile(filename)) {
+            const { default: entry } = await import(filename);
+            aFunction = entry;
         } else {
             aFunction = vm.runInThisContext(`(${filename})`);
         }
