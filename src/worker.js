@@ -9,12 +9,16 @@ parentPort.on('message', async (work) => {
         let aFunction;
         if (isJSFile(filename)) {
             aFunction = require(filename);
+            if (typeof aFunction.default === 'function') {
+                aFunction = aFunction.default;
+            }
         } else if (isMJSFile(filename)) {
             const { default: entry } = await import(filename);
             aFunction = entry;
         } else {
             aFunction = vm.runInThisContext(`(${filename})`);
         }
+       
         if (!isFunction(aFunction)) {
             throw new Error('work type error: js file or string');
         }
@@ -22,6 +26,7 @@ parentPort.on('message', async (work) => {
         parentPort.postMessage({event: 'done', work});
     } catch (error) {
         work.error = error.toString();
+        console.log(error.toString())
         parentPort.postMessage({event: 'error', work});
     }
 });

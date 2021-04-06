@@ -6,5 +6,5 @@ module.exports = {
     // 默认核心线程数
     CORE_THREADS: 10,
     // 最大空闲时间
-    MAX_IDLE_TIME: 1 * 10 * 1000,
+    MAX_IDLE_TIME: 10 * 60 * 1000,
 };

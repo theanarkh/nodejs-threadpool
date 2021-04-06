@@ -230,6 +230,9 @@ class ThreadPool {
                                         let aFunction;
                                         if (isJSFile(filename)) {
                                             aFunction = require(filename);
+                                            if (typeof aFunction.default === 'function') {
+                                                aFunction = aFunction.default;
+                                            }
                                         } else if (isMJSFile(filename)) {
                                             const { default: entry } = await import(filename);
                                             aFunction = entry;
