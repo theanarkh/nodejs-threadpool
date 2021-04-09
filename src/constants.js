@@ -25,9 +25,13 @@ const WORK_STATE = {
     END: 2,
     CANCELED: 3,
 };
-
+const PRIORITY = { 
+    ORDINARY: 1, 
+    IMPORTANT: 2, 
+};
 module.exports = {
     DISCARD_POLICY,
     THREAD_STATE,
     WORK_STATE,
+    PRIORITY,
 };

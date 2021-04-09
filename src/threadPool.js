@@ -4,7 +4,7 @@ const vm = require('vm');
 const { EventEmitter } = require('events');
 const os = require('os');
 const { Work } = require('./work');
-const { DISCARD_POLICY, THREAD_STATE, WORK_STATE } = require('./constants');
+const { DISCARD_POLICY, THREAD_STATE, WORK_STATE, PRIORITY } = require('./constants');
 const config = require('./config');
 const cores = os.cpus().length;
 const  { isFunction, isJSFile, isMJSFile } = require('./utils');
@@ -296,7 +296,18 @@ class ThreadPool {
             
             // 选中的线程正在处理任务，则先缓存到任务队列
             if (thread.state === THREAD_STATE.BUSY) {
-                this.queue.push(work);
+                if (options.priority === PRIORITY.IMPORTANT) {
+                    let i = 0;
+                    for (; i < this.queue.length; i++) {
+                        if (this.queue[i].options.priority !== PRIORITY.IMPORTANT) {
+                            break;
+                        }
+                    }
+                    this.queue = this.queue.slice(0, i).concat(work, this.queue.slice(i));
+                } else {
+                    this.queue.push(work);
+                }
+                console.log(this.queue)
                 userWork.terminate = () => {
                     this.cancelWork(userWork);
                     this.queue = this.queue.filter((node) => {
