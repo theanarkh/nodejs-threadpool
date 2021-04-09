@@ -7,7 +7,7 @@ const { Work } = require('./work');
 const { DISCARD_POLICY, THREAD_STATE, WORK_STATE } = require('./constants');
 const config = require('./config');
 const cores = os.cpus().length;
-const  { isFunction, isJSFile } = require('./utils');
+const  { isFunction, isJSFile, isMJSFile } = require('./utils');
 const workerPath = path.resolve(__dirname, 'worker.js');
 
 // 提供给用户侧的接口
@@ -102,7 +102,7 @@ class ThreadPool {
     }
     // 支持空闲退出
     pollIdle() {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             for (let i = 0; i < this.workerQueue.length; i++) {
                 const node = this.workerQueue[i];
                 if (node.state === THREAD_STATE.IDLE && Date.now() - node.lastWorkTime > this.maxIdleTime) {
@@ -111,6 +111,7 @@ class ThreadPool {
             }
             this.pollIdle();
         }, 1000);
+        timer.unref();
     }
     // 预创建线程池，数量等于核心线程数
     preCreateThreads() {
@@ -229,6 +230,12 @@ class ThreadPool {
                                         let aFunction;
                                         if (isJSFile(filename)) {
                                             aFunction = require(filename);
+                                            if (typeof aFunction.default === 'function') {
+                                                aFunction = aFunction.default;
+                                            }
+                                        } else if (isMJSFile(filename)) {
+                                            const { default: entry } = await import(filename);
+                                            aFunction = entry;
                                         } else {
                                             aFunction = vm.runInThisContext(`(${filename})`);
                                         }
