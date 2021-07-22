@@ -131,7 +131,8 @@ class ThreadPool {
             const position = this.workerQueue.findIndex((thread) => {
                 return thread.threadId === threadId;
             });
-            const exitedThread = this.workerQueue.splice(position, 1);
+            const exitedThreadArray = this.workerQueue.splice(position, 1);
+            const exitedThread = exitedThreadArray[0]
             // 退出时状态是BUSY说明还在处理任务（非正常退出）
             this.totalWork -= exitedThread.state === THREAD_STATE.BUSY ? 1 : 0;
         });
