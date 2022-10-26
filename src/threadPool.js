@@ -66,6 +66,14 @@ class Thread {
     setLastWorkTime(time) {
         this.lastWorkTime = time;
     }
+
+    ref() {
+        this.worker.ref();
+    }
+    unref() {
+        this.worker.unref();
+    }
+    // TODO add terminate and submit function
 }
 
 // 线程池基类
@@ -343,6 +351,29 @@ class ThreadPool {
         this.totalWork--;
         userWork.setState(WORK_STATE.CANCELED);
         userWork.emit('cancel');
+    }
+
+    traversal(fn) {
+        this.workerQueue.forEach((worker) => {
+            fn(worker);
+        });
+    }
+    ref() {
+        this.traversal((worker) => {
+            worker.ref();
+        });
+    }
+
+    unref() {
+        this.traversal((worker) => {
+            worker.unref();
+        });
+    }
+
+    stop() {
+        this.traversal((worker) => {
+            worker.worker.terminate();
+        });
     }
 }
 
